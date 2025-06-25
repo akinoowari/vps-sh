@@ -331,7 +331,8 @@ configure_cron() {
     local tmp_cron_file
     tmp_cron_file=$(mktemp)
     # 先将现有的 crontab 内容（如果有的话）写入临时文件
-    crontab -l 2>/dev/null > "$tmp_cron_file"
+    # !!! 修复: 在没有现有 crontab 时防止 pipefail 导致脚本退出 !!!
+    crontab -l 2>/dev/null > "$tmp_cron_file" || true
     # 然后将我们的新任务追加到文件末尾
     echo "$CRON_JOB" >> "$tmp_cron_file"
     # 从临时文件加载新的 crontab
@@ -503,7 +504,6 @@ main_menu() {
         echo "-----------------------------------------------------"
         echo -e "  ${YELLOW}q.${NC} 退出脚本"
         echo
-
         read -p "请输入选项 [1-8, q]: " choice
 
         case "$choice" in
